@@ -1,31 +1,45 @@
-const digitalElement = document.querySelector(".digital");
-const hour = document.querySelector(".p_h");
-const min = document.querySelector(".p_m");
-const sec = document.querySelector(".p_s");
+document.querySelector('.busca').addEventListener('submit', async (event)=>{
+    event.preventDefault();
 
+    let input = document.querySelector('#searchInput').value ;
 
-function getTime() {
-    const time = new Date();
+    if(input !== '') {
+        showWarning('carregando...');
+        let url = (`https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(input)}&appid=04d3c583d09ef85b8767e26e16a528e6&units=metric&lang=pt_br`);
+        
+        let results = await fetch(url);
+        let json = await results.json();
+        
+        if(json.cod === 200) {
+            mostrarInfo({
+                name: json.name,
+                country: json.sys.country,
+                temp: json.main.temp,
+                tempIcon: json.weather[0].icon,
+                windSpeed: json.wind.speed,
+                windAngle: json.wind.deg
+            });
+        }else {
+            showWarning("nao encontramos esta localizaçao");
+            document.querySelector('.resultado').style.display = 'none';
+        }
+    }
+});
 
-    const getHour = time.getHours();
-    const getMin =  time.getMinutes();
-    const getSec =  time.getSeconds();
+function mostrarInfo(json){
+    document.querySelector('.resultado').style.display = 'block'
+    showWarning('');
 
-// relogio analogico
-    getHourRot = ((360 / 12) * getHour) - 90;
-    getMinRot = ((360 / 60) * getHour) - 90;
-    getSecRot = ((360 / 60) * getSec) - 90;
+    document.querySelector('.titulo').innerHTML = `${json.name}, ${json.country}`;
+    document.querySelector('.tempInfo').innerHTML = `${json.temp} <sup>ºC</sup>`;
+    document.querySelector('.ventoInfo').innerHTML = `${json.windSpeed} <span>km/h</span>`;
 
-    hour.style.transform = `rotate(${getHourRot}deg)`;
-    min.style.transform = `rotate(${getMinRot}deg)`;
-    sec.style.transform = `rotate(${getSecRot}deg)`;
+    document.querySelector('.temp img').setAttribute('src', `http://openweathermap.org/img/wn/${json.tempIcon}@2x.png`);
 
-// relogio digital
-    digitalElement.innerHTML = `${getHour}:${getMin}:${getSec}`
-
-
+    document.querySelector('.ventoPonto').style.transform = `rotate(${json.windAngle -90}deg)`
 }
 
-setInterval(() => {
-    getTime()
-}, 1000);
+function showWarning(msg) {
+    document.querySelector('.aviso').innerHTML = msg;
+
+}
