@@ -23,7 +23,9 @@ document.querySelector('.busca').addEventListener('submit', async (event)=>{
             showWarning("nao encontramos esta localizaçao");
             document.querySelector('.resultado').style.display = 'none';
         }
-    }
+    }else{
+        document.querySelector('.resultado').style.display = 'none';
+    };
 });
 
 function mostrarInfo(json){
